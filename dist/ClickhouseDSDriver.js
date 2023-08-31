@@ -7,6 +7,10 @@ class ClickhouseDsDriver extends clickhouse_driver_1.ClickHouseDriver {
     static dialectClass() {
         return ClickhouseDSQuery_1.ClickhouseDSQuery;
     }
+    queryResponse(query, values) {
+        process.stdout.write('============= clickhouseds query response\n');
+        return super.queryResponse(query, values);
+    }
 }
 exports.ClickhouseDsDriver = ClickhouseDsDriver;
 //# sourceMappingURL=ClickhouseDSDriver.js.map
