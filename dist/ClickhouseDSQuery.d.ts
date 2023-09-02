@@ -1,10 +1,15 @@
 import { BaseQuery, BaseFilter } from '@cubejs-backend/schema-compiler';
-declare class ClickHouseDSFilter extends BaseFilter {
+declare class ClickhouseDSFilter extends BaseFilter {
+    /**
+     * Customized logic for ignore WHERE-wrapping when the filter is using in FILTER_PARAMS
+     * @returns
+     */
+    filterToWhere(): any;
     likeIgnoreCase(column: any, not: any, param: any, type: any): string;
     castParameter(): "toFloat64(?)" | "?";
 }
 export declare class ClickhouseDSQuery extends BaseQuery {
-    newFilter(filter: any): ClickHouseDSFilter;
+    newFilter(filter: any): ClickhouseDSFilter;
     escapeColumnName(name: any): string;
     convertTz(field: any): string;
     timeGroupedColumn(granularity: any, dimension: any): string;

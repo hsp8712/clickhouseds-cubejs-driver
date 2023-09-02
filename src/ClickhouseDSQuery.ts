@@ -10,7 +10,30 @@ const GRANULARITY_TO_INTERVAL = {
   year: 'Year',
 };
 
-class ClickHouseDSFilter extends BaseFilter {
+class ClickhouseDSFilter extends BaseFilter {
+
+  /**
+   * Customized logic for ignore WHERE-wrapping when the filter is using in FILTER_PARAMS
+   * @returns 
+   */
+  filterToWhere() {
+
+    let sql = this.cube().sql?.toString();
+    if (sql) {
+      let path = this.dimension || this.measure;
+      let placeholder = `\$\{FILTER_PARAMS.${path}.`
+      if (sql.includes(placeholder)) {
+        return undefined
+      }
+    }
+  
+    if (this.camelizeOperator === 'measureFilter') {
+      return this.measureFilterToWhere();
+    }
+
+    return this.conditionSql(this.measure ? this.query.measureSql(this) : this.query.dimensionSql(this));
+  }
+
   likeIgnoreCase(column, not, param, type) {
     const p = (!type || type === 'contains' || type === 'ends') ? '%' : '';
     const s = (!type || type === 'contains' || type === 'starts') ? '%' : '';
@@ -28,7 +51,7 @@ class ClickHouseDSFilter extends BaseFilter {
 
 export class ClickhouseDSQuery extends BaseQuery {
   newFilter(filter) {
-    return new ClickHouseDSFilter(this, filter);
+    return new ClickhouseDSFilter(this, filter);
   }
 
   escapeColumnName(name) {

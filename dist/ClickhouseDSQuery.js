@@ -11,7 +11,26 @@ const GRANULARITY_TO_INTERVAL = {
     quarter: 'Quarter',
     year: 'Year',
 };
-class ClickHouseDSFilter extends schema_compiler_1.BaseFilter {
+class ClickhouseDSFilter extends schema_compiler_1.BaseFilter {
+    /**
+     * Customized logic for ignore WHERE-wrapping when the filter is using in FILTER_PARAMS
+     * @returns
+     */
+    filterToWhere() {
+        var _a;
+        let sql = (_a = this.cube().sql) === null || _a === void 0 ? void 0 : _a.toString();
+        if (sql) {
+            let path = this.dimension || this.measure;
+            let placeholder = `\$\{FILTER_PARAMS.${path}.`;
+            if (sql.includes(placeholder)) {
+                return undefined;
+            }
+        }
+        if (this.camelizeOperator === 'measureFilter') {
+            return this.measureFilterToWhere();
+        }
+        return this.conditionSql(this.measure ? this.query.measureSql(this) : this.query.dimensionSql(this));
+    }
     likeIgnoreCase(column, not, param, type) {
         const p = (!type || type === 'contains' || type === 'ends') ? '%' : '';
         const s = (!type || type === 'contains' || type === 'starts') ? '%' : '';
@@ -27,7 +46,7 @@ class ClickHouseDSFilter extends schema_compiler_1.BaseFilter {
 }
 class ClickhouseDSQuery extends schema_compiler_1.BaseQuery {
     newFilter(filter) {
-        return new ClickHouseDSFilter(this, filter);
+        return new ClickhouseDSFilter(this, filter);
     }
     escapeColumnName(name) {
         return `\`${name}\``;
